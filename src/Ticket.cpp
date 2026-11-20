@@ -1,4 +1,5 @@
 #include "Ticket.h"
+#include <algorithm>
 
 int Ticket::total_ = 0;
 
@@ -30,4 +31,28 @@ double Ticket::finalPrice() const {
 void Ticket::changeSeat(int newSeat) {
     cout << "换座：" << seat_ << " -> " << newSeat << endl;
     seat_ = newSeat;
+}
+
+// 两张票合成套票：价格累加，折扣取更优惠（更小）的那个
+Ticket Ticket::operator+(const Ticket& other) const {
+    return Ticket(title_ + "&" + other.title_,
+                  price_ + other.price_,
+                  seat_,
+                  std::min(discount_, other.discount_));
+}
+
+// 按实付价格比较
+bool Ticket::operator<(const Ticket& other) const {
+    return finalPrice() < other.finalPrice();
+}
+
+// 同影片且同座位视为同一张票
+bool Ticket::operator==(const Ticket& other) const {
+    return title_ == other.title_ && seat_ == other.seat_;
+}
+
+ostream& operator<<(ostream& os, const Ticket& t) {
+    os << "《" << t.title_ << "》 座位:" << t.seat_
+       << " 实付:" << t.finalPrice();
+    return os;
 }
